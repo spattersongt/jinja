@@ -8,6 +8,7 @@
     :copyright: (c) 2010 by the Jinja Team.
     :license: BSD, see LICENSE for more details.
 """
+import time
 from itertools import chain
 from copy import deepcopy
 from keyword import iskeyword as is_python_keyword
@@ -1659,10 +1660,14 @@ class CodeGenerator(NodeVisitor):
     def visit_Scope(self, node, frame):
         scope_frame = frame.inner()
         scope_frame.inspect(node.iter_child_nodes())
+
+        start = time.time()
         aliases = self.push_scope(scope_frame)
         self.pull_locals(scope_frame)
         self.blockvisit(node.body, scope_frame)
         self.pop_scope(aliases, scope_frame)
+        duration = time.time() - start
+        print('%s - %s' % (frame.block, duration))
 
     def visit_EvalContextModifier(self, node, frame):
         for keyword in node.options:
